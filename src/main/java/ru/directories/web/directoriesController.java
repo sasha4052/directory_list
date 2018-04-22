@@ -1,19 +1,45 @@
 package ru.directories.web;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.directories.dom.Directory;
+import ru.directories.rep.DirectoryRepository;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+import java.util.List;
+
+@CrossOrigin(origins = "http://localhost:4200", maxAge = 3600)
 @RestController
+@RequestMapping({"/api"})
 public class directoriesController {
 
-    @RequestMapping("/state")
-    public Directory getState(@RequestParam(value = "elvId", defaultValue = "1") String elvId)
-    {
-        // this.cabServ.addCabin(new Cabin(1));
-        // System.out.println("Test ONE" + this.cabServ.getCabin(1));
+    @Autowired
+    DirectoryRepository rp;
 
-        return new Directory();
+    @PostMapping
+    public Directory create(@RequestBody String  path){
+        try {
+            return rp.save(new Directory(path));
+        }catch(NullPointerException e){
+            return null;
+        }
     }
+
+    @GetMapping
+    public List  findAll()
+    {
+        return rp.findAll();
+    }
+
+    @RequestMapping(path = {"/{id}"})
+    public List  getFilesFromDirectory(@PathVariable("id") int id)
+    {
+        return Arrays.asList(rp.findOne(id).getFlist().split(";"));
+    }
+
+    /*@RequestMapping({"/test"})
+    public List  findAll1()
+    {
+        return rp.findAll();
+    }*/
 }
